@@ -11,51 +11,51 @@ import (
 
 var version = "dev"
 
-const usage = `pqai - PQAI API 커맨드라인 클라이언트 (https://api.projectpq.ai)
+const usage = `pqai - PQAI API command-line client (https://api.projectpq.ai)
 
-사용법:
+Usage:
   pqai <command> [flags] [args]
 
-검색 (토큰 필요):
-  search <query>          텍스트 쿼리로 선행기술 문서 검색 (102)
-  combos <query>          텍스트 쿼리로 선행기술 조합 검색 (103)
-  prior-art <pn>          특허의 선행기술 검색 (출원일 이전 문서)
-  similar <pn>            특허와 유사한 문서 검색
+Search (token required):
+  search <query>          search prior-art documents by text query (102)
+  combos <query>          search prior-art "combinations" by text query (103)
+  prior-art <pn>          search prior art for a patent (documents predating its filing)
+  similar <pn>            search documents similar to a patent
 
-문서/특허 (토큰 필요):
-  patent <pn>             특허 데이터 조회
-  document <id>           PQAI 데이터베이스에서 문서 조회
-  vector <pn> <field>     특허 벡터 조회 (field: cpcs | abstract)
-  snippet <pn> -q <text>  쿼리-문서 쌍의 스니펫 조회
-  mapping <pn> -q <text>  쿼리-문서 쌍의 요소별 매핑 조회
-  dataset                 데이터셋 샘플 조회 (-name, -n)
+Documents/patents (token required):
+  patent <pn>             look up patent data
+  document <id>           look up a document in the PQAI database
+  vector <pn> <field>     look up a patent's embedding vector (field: cpcs | abstract)
+  snippet <pn> -q <text>  look up the snippet for a query-document pair
+  mapping <pn> -q <text>  look up the per-element mapping for a query-document pair
+  dataset                 fetch a dataset sample (-name, -n)
 
-도면:
-  drawings <pn>           특허 도면 목록 조회 (토큰 필요)
-  drawing <pn> <n>        특허 도면 다운로드 (PNG, 토큰 불필요)
+Drawings:
+  drawings <pn>           list a patent's drawings (token required)
+  drawing <pn> <n>        download a patent drawing (PNG, no token required)
 
-분류 (토큰 필요):
-  cpcs <text>             텍스트에 대한 CPC 분류 제안
-  gaus <text>             텍스트에 대한 Group Art Unit 제안
-  cpc-def <cpc>           CPC 클래스 정의 조회
+Classification (token required):
+  cpcs <text>             suggest CPC classifications for text
+  gaus <text>             suggest a Group Art Unit for text
+  cpc-def <cpc>           look up a CPC class definition
 
-설정:
-  config set-api-key <token>          API 토큰을 전역 설정 파일에 저장 (모든 폴더에서 사용됨)
-  config set-api-key --from-dotenv <path>   dotenv 파일에서 토큰을 읽어와 전역 설정에 저장
-  config show                         전역 설정 파일 위치와 현재 사용 중인 토큰의 출처 확인
+Config:
+  config set-api-key <token>                 save the API token to the global config file (used from any folder)
+  config set-api-key --from-dotenv <path>    read the token from a dotenv file and save it to the global config
+  config show                                show the global config file location and where the active token came from
 
-환경변수:
-  PQAI_API_KEY            API 액세스 토큰 (필수, 도면 다운로드 라우트 제외)
-  PQAI_ENDPOINT           API 주소 재정의 (기본: https://api.projectpq.ai)
+Environment variables:
+  PQAI_API_KEY            API access token (required, except for the drawing-download route)
+  PQAI_ENDPOINT           override the API base URL (default: https://api.projectpq.ai)
 
-토큰은 다음 순서로 우선 적용됩니다 (위가 우선):
-  1. 셸에서 export한 PQAI_API_KEY
-  2. 현재 폴더의 .env 파일
-  3. 'pqai config set-api-key'로 저장한 전역 설정 파일 (모든 폴더에서 동작)
+The token is resolved in this order (highest priority first):
+  1. PQAI_API_KEY exported in your shell
+  2. A .env file in the current folder
+  3. The global config file saved via 'pqai config set-api-key' (works from any folder)
 
-각 명령의 플래그는 'pqai <command> -h'로 확인하세요.
+Run 'pqai <command> -h' to see flags for each command.
 
-  version                 CLI 버전 출력
+  version                 print the CLI version
 `
 
 func main() {
@@ -66,12 +66,12 @@ func main() {
 
 	switch {
 	case hadShellEnv:
-		apiKeySource = "셸 환경변수 (export PQAI_API_KEY=...)"
+		apiKeySource = "shell environment variable (export PQAI_API_KEY=...)"
 	case hadEnvAfterDotenv:
-		apiKeySource = "현재 폴더의 .env 파일"
+		apiKeySource = "local .env file in the current folder"
 	default:
 		if v, ok := os.LookupEnv("PQAI_API_KEY"); ok && v != "" {
-			apiKeySource = "전역 설정 파일 (pqai config set-api-key)"
+			apiKeySource = "global config file (pqai config set-api-key)"
 		}
 	}
 
@@ -122,35 +122,35 @@ func main() {
 	case "version", "-v", "--version":
 		fmt.Println("pqai " + version)
 	default:
-		fmt.Fprintf(os.Stderr, "알 수 없는 명령: %s\n\n", cmd)
+		fmt.Fprintf(os.Stderr, "Unknown command: %s\n\n", cmd)
 		fmt.Fprint(os.Stderr, usage)
 		os.Exit(2)
 	}
 
 	if err != nil {
-		fmt.Fprintln(os.Stderr, "오류:", err)
+		fmt.Fprintln(os.Stderr, "Error:", err)
 		os.Exit(1)
 	}
 }
 
 func cmdSearch(c *Client, route string, args []string) error {
 	fs := flag.NewFlagSet("search", flag.ExitOnError)
-	n := fs.Int("n", 10, "결과 개수")
-	offset := fs.Int("offset", 0, "페이지네이션 오프셋 (0부터)")
-	index := fs.String("index", "", "CPC 서브클래스 (예: H04W, auto)")
-	cc := fs.String("cc", "", "국가 코드 목록 (예: US,EP,WO)")
-	dtype := fs.String("dtype", "", "컷오프 날짜 기준: priority|publication|filing")
-	after := fs.String("after", "", "컷오프 시작 날짜 (예: 2016-01-01)")
-	before := fs.String("before", "", "컷오프 종료 날짜 (예: 2019-12-31)")
-	typ := fs.String("type", "", "문서 유형: patent|npl")
-	snip := fs.Bool("snip", false, "스니펫 포함")
-	maps := fs.Bool("maps", false, "요소별 매핑 포함")
-	lq := fs.String("lq", "", `잠재 쿼리 JSON (예: {"relevant":[],"irrelevant":[]})`)
-	asJSON := fs.Bool("json", false, "원본 JSON 출력")
+	n := fs.Int("n", 10, "number of results")
+	offset := fs.Int("offset", 0, "pagination offset (0-based)")
+	index := fs.String("index", "", "CPC subclass (e.g. H04W, auto)")
+	cc := fs.String("cc", "", "country code list (e.g. US,EP,WO)")
+	dtype := fs.String("dtype", "", "cutoff-date basis: priority|publication|filing")
+	after := fs.String("after", "", "cutoff start date (e.g. 2016-01-01)")
+	before := fs.String("before", "", "cutoff end date (e.g. 2019-12-31)")
+	typ := fs.String("type", "", "document type: patent|npl")
+	snip := fs.Bool("snip", false, "include a matching snippet")
+	maps := fs.Bool("maps", false, "include per-element mapping")
+	lq := fs.String("lq", "", `latent query JSON (e.g. {"relevant":[],"irrelevant":[]})`)
+	asJSON := fs.Bool("json", false, "print raw JSON output")
 	pos := parseArgs(fs, args)
 
 	if len(pos) < 1 {
-		return fmt.Errorf("검색 쿼리를 입력하세요")
+		return fmt.Errorf("please provide a search query")
 	}
 	params := url.Values{"q": {pos[0]}, "n": {strconv.Itoa(*n)}}
 	if *offset > 0 {
@@ -184,15 +184,15 @@ func cmdSearch(c *Client, route string, args []string) error {
 
 func cmdPatentSearch(c *Client, route string, args []string) error {
 	fs := flag.NewFlagSet("patent-search", flag.ExitOnError)
-	n := fs.Int("n", 10, "결과 개수")
-	offset := fs.Int("offset", 0, "페이지네이션 오프셋 (0부터)")
-	index := fs.String("index", "", "CPC 서브클래스 (예: H04W, auto)")
-	typ := fs.String("type", "", "문서 유형: patent|npl")
-	asJSON := fs.Bool("json", false, "원본 JSON 출력")
+	n := fs.Int("n", 10, "number of results")
+	offset := fs.Int("offset", 0, "pagination offset (0-based)")
+	index := fs.String("index", "", "CPC subclass (e.g. H04W, auto)")
+	typ := fs.String("type", "", "document type: patent|npl")
+	asJSON := fs.Bool("json", false, "print raw JSON output")
 	pos := parseArgs(fs, args)
 
 	if len(pos) < 1 {
-		return fmt.Errorf("특허 번호를 입력하세요 (예: US7654321B2)")
+		return fmt.Errorf("please provide a patent number (e.g. US7654321B2)")
 	}
 	params := url.Values{"pn": {pos[0]}, "n": {strconv.Itoa(*n)}}
 	if *offset > 0 {
@@ -215,11 +215,11 @@ func cmdPatentSearch(c *Client, route string, args []string) error {
 
 func cmdSnippet(c *Client, route string, args []string) error {
 	fs := flag.NewFlagSet("snippet", flag.ExitOnError)
-	q := fs.String("q", "", "텍스트 쿼리")
+	q := fs.String("q", "", "text query")
 	pos := parseArgs(fs, args)
 
 	if len(pos) < 1 || *q == "" {
-		return fmt.Errorf("사용법: pqai snippet|mapping <pn> -q <query>")
+		return fmt.Errorf("usage: pqai snippet|mapping <pn> -q <query>")
 	}
 	params := url.Values{"q": {*q}, "pn": {pos[0]}}
 	body, err := c.Get(route, params, true)
@@ -232,7 +232,7 @@ func cmdSnippet(c *Client, route string, args []string) error {
 
 func cmdDocument(c *Client, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("문서 ID를 입력하세요 (예: US7654321B2)")
+		return fmt.Errorf("please provide a document ID (e.g. US7654321B2)")
 	}
 	body, err := c.Get("/documents/", url.Values{"id": {args[0]}}, true)
 	if err != nil {
@@ -244,7 +244,7 @@ func cmdDocument(c *Client, args []string) error {
 
 func cmdPatent(c *Client, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("특허 번호를 입력하세요 (예: US7654321B2)")
+		return fmt.Errorf("please provide a patent number (e.g. US7654321B2)")
 	}
 	body, err := c.Get("/patents/"+url.PathEscape(args[0]), nil, true)
 	if err != nil {
@@ -256,7 +256,7 @@ func cmdPatent(c *Client, args []string) error {
 
 func cmdVector(c *Client, args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("사용법: pqai vector <pn> <field>  (field: cpcs | abstract)")
+		return fmt.Errorf("usage: pqai vector <pn> <field>  (field: cpcs | abstract)")
 	}
 	route := "/patents/" + url.PathEscape(args[0]) + "/vectors/" + url.PathEscape(args[1])
 	body, err := c.Get(route, nil, true)
@@ -269,8 +269,8 @@ func cmdVector(c *Client, args []string) error {
 
 func cmdDataset(c *Client, args []string) error {
 	fs := flag.NewFlagSet("dataset", flag.ExitOnError)
-	name := fs.String("name", "PoC", "데이터셋 이름")
-	n := fs.Int("n", 0, "샘플 번호")
+	name := fs.String("name", "PoC", "dataset name")
+	n := fs.Int("n", 0, "sample number")
 	parseArgs(fs, args)
 
 	params := url.Values{"dataset": {*name}, "n": {strconv.Itoa(*n)}}
@@ -284,11 +284,11 @@ func cmdDataset(c *Client, args []string) error {
 
 func cmdDrawings(c *Client, args []string) error {
 	fs := flag.NewFlagSet("drawings", flag.ExitOnError)
-	thumb := fs.Bool("thumb", false, "썸네일 목록 조회")
+	thumb := fs.Bool("thumb", false, "list thumbnails instead")
 	pos := parseArgs(fs, args)
 
 	if len(pos) < 1 {
-		return fmt.Errorf("특허 번호를 입력하세요 (예: US7654321B2)")
+		return fmt.Errorf("please provide a patent number (e.g. US7654321B2)")
 	}
 	kind := "drawings"
 	if *thumb {
@@ -304,14 +304,14 @@ func cmdDrawings(c *Client, args []string) error {
 
 func cmdDrawing(c *Client, args []string) error {
 	fs := flag.NewFlagSet("drawing", flag.ExitOnError)
-	thumb := fs.Bool("thumb", false, "썸네일로 다운로드")
-	w := fs.Int("w", 0, "썸네일 너비 (px)")
-	h := fs.Int("h", 0, "썸네일 높이 (px)")
-	out := fs.String("o", "", "저장할 파일 경로 (기본: <pn>_<n>.png)")
+	thumb := fs.Bool("thumb", false, "download as a thumbnail")
+	w := fs.Int("w", 0, "thumbnail width (px)")
+	h := fs.Int("h", 0, "thumbnail height (px)")
+	out := fs.String("o", "", "output file path (default: <pn>_<n>.png)")
 	pos := parseArgs(fs, args)
 
 	if len(pos) < 2 {
-		return fmt.Errorf("사용법: pqai drawing <pn> <n> [-thumb] [-w 300] [-o out.png]")
+		return fmt.Errorf("usage: pqai drawing <pn> <n> [-thumb] [-w 300] [-o out.png]")
 	}
 	pn, n := pos[0], pos[1]
 	kind := "drawings"
@@ -337,13 +337,13 @@ func cmdDrawing(c *Client, args []string) error {
 	if err := os.WriteFile(path, body, 0o644); err != nil {
 		return err
 	}
-	fmt.Printf("저장됨: %s (%d bytes)\n", path, len(body))
+	fmt.Printf("Saved: %s (%d bytes)\n", path, len(body))
 	return nil
 }
 
 func cmdText(c *Client, route, key string, args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("텍스트를 입력하세요")
+		return fmt.Errorf("please provide text")
 	}
 	body, err := c.Get(route, url.Values{key: {args[0]}}, true)
 	if err != nil {

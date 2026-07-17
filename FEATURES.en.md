@@ -60,6 +60,8 @@ Actually calling this on `US11868178B2` (a ring-form wearable-device patent), ou
 
 The key point: knowing just one patent number is enough to pull up its overlapping prior-art pool — you never have to think up a search query yourself.
 
+**Gotcha**: unlike `search`/`combos`, these two routes don't take date or country filters at all. Per the [official PQAI API docs](https://api.projectpq.ai/docs), `/prior-art/patent/` and `/similar/` only accept `pn`, `n`, `offset`, `index`, and `type` — there's no `-cc`, `-dtype`, `-after`, or `-before` here (`prior-art` already implicitly cuts off at the patent's own filing date, so a separate date filter wouldn't make sense; there's just no country filter at all). Trying one errors out immediately client-side (`flag provided but not defined`), before any request is even sent. If you need to filter by date/country, do it through `search`/`combos` with a text query instead.
+
 ---
 
 ## 4. Split a claim into elements and match each one against a document — `mapping` ⭐ (the most underrated feature)

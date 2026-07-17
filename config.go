@@ -11,11 +11,11 @@ import (
 // once in main() before the command dispatch, since by the time any command
 // runs, loadDotEnv/loadGlobalConfig have already merged everything into the
 // process environment and the original source is no longer distinguishable.
-var apiKeySource = "설정되지 않음"
+var apiKeySource = "not set"
 
 func cmdConfig(args []string) error {
 	if len(args) < 1 {
-		return fmt.Errorf("사용법: pqai config <set-api-key|show> ...")
+		return fmt.Errorf("usage: pqai config <set-api-key|show> ...")
 	}
 	sub, rest := args[0], args[1:]
 	switch sub {
@@ -24,28 +24,28 @@ func cmdConfig(args []string) error {
 	case "show":
 		return cmdConfigShow(rest)
 	default:
-		return fmt.Errorf("알 수 없는 config 하위 명령: %s (set-api-key | show)", sub)
+		return fmt.Errorf("unknown config subcommand: %s (set-api-key | show)", sub)
 	}
 }
 
 func cmdConfigSetAPIKey(args []string) error {
 	fs := flag.NewFlagSet("config set-api-key", flag.ExitOnError)
-	fromDotenv := fs.String("from-dotenv", "", "이 dotenv 파일에서 PQAI_API_KEY를 읽어와 저장")
+	fromDotenv := fs.String("from-dotenv", "", "read PQAI_API_KEY from this dotenv file and save it")
 	pos := parseArgs(fs, args)
 
 	var key string
 	if *fromDotenv != "" {
 		vals, err := parseEnvFile(*fromDotenv)
 		if err != nil {
-			return fmt.Errorf("dotenv 파일을 읽을 수 없습니다: %w", err)
+			return fmt.Errorf("could not read dotenv file: %w", err)
 		}
 		key = vals["PQAI_API_KEY"]
 		if key == "" {
-			return fmt.Errorf("%s 파일에 PQAI_API_KEY가 없습니다", *fromDotenv)
+			return fmt.Errorf("%s does not contain PQAI_API_KEY", *fromDotenv)
 		}
 	} else {
 		if len(pos) < 1 {
-			return fmt.Errorf("사용법: pqai config set-api-key <token>  또는  pqai config set-api-key --from-dotenv <path>")
+			return fmt.Errorf("usage: pqai config set-api-key <token>  or  pqai config set-api-key --from-dotenv <path>")
 		}
 		key = pos[0]
 	}
@@ -54,8 +54,8 @@ func cmdConfigSetAPIKey(args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("저장됨: %s\n", path)
-	fmt.Println("이제 어느 폴더에서 pqai를 실행하든 이 토큰이 자동으로 사용됩니다.")
+	fmt.Printf("Saved: %s\n", path)
+	fmt.Println("pqai will now use this token automatically from any folder.")
 	return nil
 }
 
@@ -69,18 +69,18 @@ func cmdConfigShow(args []string) error {
 		return err
 	}
 
-	fmt.Printf("설정 파일: %s\n", path)
+	fmt.Printf("Config file: %s\n", path)
 	if _, statErr := os.Stat(path); os.IsNotExist(statErr) {
-		fmt.Println("상태: 파일 없음 (아직 'pqai config set-api-key <token>'을 실행한 적 없음)")
+		fmt.Println("Status: file does not exist yet ('pqai config set-api-key <token>' has not been run)")
 	}
 	fmt.Println()
 
 	if key, ok := vals["PQAI_API_KEY"]; ok && key != "" {
-		fmt.Printf("전역 설정의 PQAI_API_KEY: %s\n", maskKey(key))
+		fmt.Printf("Global config PQAI_API_KEY: %s\n", maskKey(key))
 	} else {
-		fmt.Println("전역 설정의 PQAI_API_KEY: 없음")
+		fmt.Println("Global config PQAI_API_KEY: none")
 	}
-	fmt.Printf("현재 실제로 사용될 값의 출처: %s\n", apiKeySource)
+	fmt.Printf("Source of the value actually in use: %s\n", apiKeySource)
 	return nil
 }
 

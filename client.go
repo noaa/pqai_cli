@@ -39,7 +39,7 @@ func (c *Client) Get(route string, params url.Values, auth bool) ([]byte, error)
 	}
 	if auth {
 		if c.Token == "" {
-			return nil, fmt.Errorf("API 토큰이 없습니다. 환경변수 PQAI_API_KEY를 설정하세요")
+			return nil, fmt.Errorf("no API token found. Set the PQAI_API_KEY environment variable (see 'pqai config set-api-key')")
 		}
 		params.Set("token", c.Token)
 	}

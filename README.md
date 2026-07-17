@@ -211,6 +211,8 @@ pqai similar US10112730B2 -n 10 -type patent
 
 Flags shared by both commands: `-n`, `-offset`, `-index`, `-type`, `-json`.
 
+**Note**: unlike `search`/`combos`, the underlying `/prior-art/patent/` and `/similar/` API routes do not accept date (`-dtype`/`-after`/`-before`) or country (`-cc`) filters at all — per the [official PQAI API docs](https://api.projectpq.ai/docs), these two routes only take `pn`, `n`, `offset`, `index`, and `type`. `prior-art` already implicitly cuts off at the given patent's filing date, and neither route supports narrowing by country. If you need date/country filtering, use `search`/`combos` with a text query instead.
+
 ### 3. Query-document pair analysis
 
 #### `snippet <pn> -q <text>` — retrieve the snippet matching a query (`/snippets/`)

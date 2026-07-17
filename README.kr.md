@@ -211,6 +211,8 @@ pqai similar US10112730B2 -n 10 -type patent
 
 두 명령 공통 플래그: `-n`, `-offset`, `-index`, `-type`, `-json`.
 
+**참고**: `search`/`combos`와 달리, `/prior-art/patent/`와 `/similar/` API 라우트는 날짜(`-dtype`/`-after`/`-before`)나 국가(`-cc`) 필터를 아예 지원하지 않습니다 — [PQAI 공식 API 문서](https://api.projectpq.ai/docs)에 따르면 이 두 라우트는 `pn`, `n`, `offset`, `index`, `type`만 받습니다. `prior-art`는 이미 "해당 특허의 출원일 이전"으로 날짜가 암묵적으로 고정되어 있고, 두 라우트 모두 국가로 좁히는 기능 자체가 없습니다. 날짜/국가로 필터링하려면 `search`/`combos`를 텍스트 쿼리로 사용해야 합니다.
+
 ### 3. 쿼리-문서 쌍 분석
 
 #### `snippet <pn> -q <text>` — 쿼리와 매칭되는 스니펫 조회 (`/snippets/`)

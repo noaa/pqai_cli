@@ -60,6 +60,8 @@ pqai prior-art US11868178B2 -n 10
 
 특허 하나만 알면 그와 겹치는 선행기술 풀을 바로 얻을 수 있다는 점이 핵심입니다 — 검색어를 직접 고민할 필요가 없습니다.
 
+**주의할 점**: `search`/`combos`와 달리 이 두 라우트는 날짜/국가 필터를 아예 지원하지 않습니다. [PQAI 공식 API 문서](https://api.projectpq.ai/docs)에 따르면 `/prior-art/patent/`와 `/similar/`는 `pn`, `n`, `offset`, `index`, `type`만 받고, `-cc`/`-dtype`/`-after`/`-before`는 존재하지 않습니다 (`prior-art`는 이미 "해당 특허의 출원일"로 날짜가 암묵적으로 고정되어 있어 별도 날짜 필터가 필요 없고, 국가 필터는 애초에 라우트 자체에 없습니다). 이 플래그들을 시도하면 요청이 서버로 가기도 전에 클라이언트 단에서 바로 에러(`flag provided but not defined`)가 납니다. 날짜/국가로 필터링해야 한다면 `search`/`combos`를 텍스트 쿼리로 사용하세요.
+
 ---
 
 ## 4. 청구항을 요소별로 쪼개서 문서와 대조한다 — `mapping` ⭐ (가장 저평가된 기능)

@@ -52,7 +52,7 @@ func printSearchResults(raw []byte) {
 			fmt.Printf("    %s\n", r.Title)
 		}
 		if r.Owner != "" {
-			fmt.Printf("    소유자: %s\n", r.Owner)
+			fmt.Printf("    owner: %s\n", r.Owner)
 		}
 		if r.Snippet != "" {
 			fmt.Printf("    snippet: %s\n", truncate(r.Snippet, 200))
