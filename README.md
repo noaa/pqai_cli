@@ -6,11 +6,40 @@ A Go CLI for the [PQAI API](https://projectpq.ai/patent-search-api-by-pqai/) —
 
 Want to see how each feature actually behaves, with real API responses? Check out [`FEATURES.en.md`](FEATURES.en.md) (in particular, `mapping` — which splits a claim into elements and matches each one against a document — is a feature that's hard to appreciate until you've tried it).
 
-## Install / Build
+## Install
+
+There are two ways to get `pqai`: download a ready-made binary (no Go required), or build it yourself from source.
+
+### Option A: Download a prebuilt binary (easiest, no Go required)
+
+Go to the [Releases page](../../releases) of this repository and download the archive for your OS/architecture, e.g.:
+
+- macOS (Apple Silicon): `pqai-darwin-arm64.tar.gz`
+- macOS (Intel): `pqai-darwin-amd64.tar.gz`
+- Linux (x86_64): `pqai-linux-amd64.tar.gz`
+- Linux (arm64): `pqai-linux-arm64.tar.gz`
+- Windows (x86_64): `pqai-windows-amd64.zip`
+
+Then extract it and move the binary somewhere on your `PATH` (or just run it from the folder you extracted it to):
+
+```bash
+tar -xzf pqai-darwin-arm64.tar.gz     # or unzip on Windows
+./pqai help
+```
+
+**macOS note**: since these binaries aren't notarized by an Apple Developer account, Gatekeeper may block the first run with "cannot be opened because the developer cannot be verified." If that happens, remove the quarantine flag once:
+
+```bash
+xattr -d com.apple.quarantine ./pqai
+```
+
+If you'd rather build it yourself instead (or want the latest unreleased code), use Option B below.
+
+### Option B: Build from source
 
 This is a command-line tool written in the [Go](https://go.dev) programming language. If you've never used Go before, don't worry — you don't need to know how to write Go code, you just need the Go compiler installed once to build the program.
 
-### Step 1: Install Go (skip if you already have it)
+#### Step 1: Install Go (skip if you already have it)
 
 Check whether Go is already installed:
 
@@ -28,7 +57,7 @@ If you get a "command not found" error, install Go:
 
 After installing, open a **new** terminal window (so it picks up the updated PATH) and run `go version` again to confirm.
 
-### Step 2: Download this repository
+#### Step 2: Download this repository
 
 If you have `git` installed, copy the repo URL from the green "Code" button on the GitHub page and run:
 
@@ -39,7 +68,7 @@ cd pqai-cli
 
 Otherwise, click the green "Code" button on the GitHub repo page → "Download ZIP", then unzip it and open a terminal in that folder.
 
-### Step 3: Build the CLI
+#### Step 3: Build the CLI
 
 From inside the project folder, run:
 
