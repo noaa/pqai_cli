@@ -39,9 +39,19 @@ const usage = `pqai - PQAI API 커맨드라인 클라이언트 (https://api.proj
   gaus <text>             텍스트에 대한 Group Art Unit 제안
   cpc-def <cpc>           CPC 클래스 정의 조회
 
-환경변수 (실행 위치에 .env 파일이 있으면 자동으로 읽습니다):
+설정:
+  config set-api-key <token>          API 토큰을 전역 설정 파일에 저장 (모든 폴더에서 사용됨)
+  config set-api-key --from-dotenv <path>   dotenv 파일에서 토큰을 읽어와 전역 설정에 저장
+  config show                         전역 설정 파일 위치와 현재 사용 중인 토큰의 출처 확인
+
+환경변수:
   PQAI_API_KEY            API 액세스 토큰 (필수, 도면 다운로드 라우트 제외)
   PQAI_ENDPOINT           API 주소 재정의 (기본: https://api.projectpq.ai)
+
+토큰은 다음 순서로 우선 적용됩니다 (위가 우선):
+  1. 셸에서 export한 PQAI_API_KEY
+  2. 현재 폴더의 .env 파일
+  3. 'pqai config set-api-key'로 저장한 전역 설정 파일 (모든 폴더에서 동작)
 
 각 명령의 플래그는 'pqai <command> -h'로 확인하세요.
 
@@ -49,7 +59,21 @@ const usage = `pqai - PQAI API 커맨드라인 클라이언트 (https://api.proj
 `
 
 func main() {
+	_, hadShellEnv := os.LookupEnv("PQAI_API_KEY")
 	loadDotEnv()
+	_, hadEnvAfterDotenv := os.LookupEnv("PQAI_API_KEY")
+	loadGlobalConfig()
+
+	switch {
+	case hadShellEnv:
+		apiKeySource = "셸 환경변수 (export PQAI_API_KEY=...)"
+	case hadEnvAfterDotenv:
+		apiKeySource = "현재 폴더의 .env 파일"
+	default:
+		if v, ok := os.LookupEnv("PQAI_API_KEY"); ok && v != "" {
+			apiKeySource = "전역 설정 파일 (pqai config set-api-key)"
+		}
+	}
 
 	if len(os.Args) < 2 {
 		fmt.Fprint(os.Stderr, usage)
@@ -91,6 +115,8 @@ func main() {
 		err = cmdText(c, "/predict/gaus", "text", args)
 	case "cpc-def":
 		err = cmdText(c, "/definitions/cpcs", "cpc", args)
+	case "config":
+		err = cmdConfig(args)
 	case "help", "-h", "--help":
 		fmt.Print(usage)
 	case "version", "-v", "--version":

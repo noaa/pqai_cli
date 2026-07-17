@@ -122,13 +122,36 @@ If you see the usage text printed, the build succeeded and you're ready to go â€
 
 You need an API token issued from your PQAI+ subscription account page (except for the drawing-download route).
 
-- Set it via the `PQAI_API_KEY` environment variable, or
-- Drop a `.env` file in the project root and it's read automatically (an existing shell environment variable takes precedence).
+**Recommended: store it once in the global config, so it works from any directory:**
+
+```bash
+pqai config set-api-key your_token_here
+
+# Or import it from an existing .env file:
+pqai config set-api-key --from-dotenv .env
+```
+
+This writes the token to your user config file (`~/.config/pqai/config.env` on macOS/Linux, `%AppData%\pqai\config.env` on Windows) with `0600` permissions, so it isn't tied to whatever folder you happen to be running `pqai` from. Check what's currently configured with:
+
+```bash
+pqai config show
+```
+
+Alternative ways to set it (useful for one-off overrides or CI):
+
+- Export the `PQAI_API_KEY` environment variable in your shell.
+- Drop a `.env` file in the current project folder â€” this only applies while you run `pqai` from that folder.
 
 ```
 PQAI_API_KEY=your_token_here
 # PQAI_ENDPOINT=https://api.projectpq.ai   # optional, override the API base URL
 ```
+
+If more than one of these is set, the token is resolved in this order (highest priority first):
+
+1. A `PQAI_API_KEY` exported in your shell
+2. A `.env` file in the current directory
+3. The global config file set via `pqai config set-api-key`
 
 **Note**: The PQAI+ plan is $20/month for roughly 20 calls. Test sparingly.
 

@@ -122,13 +122,36 @@ go build -o pqai .
 
 PQAI+ 구독 계정 페이지에서 발급받은 API 토큰이 필요합니다 (도면 다운로드 라우트 제외).
 
-- 환경변수 `PQAI_API_KEY`로 설정하거나
-- 프로젝트 루트에 `.env` 파일을 두면 자동으로 읽습니다 (셸 환경변수가 있으면 그게 우선).
+**권장: 전역 설정에 한 번만 저장해두면 어느 폴더에서든 동작합니다:**
+
+```bash
+pqai config set-api-key your_token_here
+
+# 또는 기존 .env 파일에서 가져오기:
+pqai config set-api-key --from-dotenv .env
+```
+
+이 명령은 토큰을 사용자 설정 파일(macOS/Linux: `~/.config/pqai/config.env`, Windows: `%AppData%\pqai\config.env`)에 `0600` 권한으로 저장하므로, 현재 `pqai`를 실행 중인 폴더가 어디인지와 무관하게 동작합니다. 현재 설정 상태는 다음으로 확인할 수 있습니다:
+
+```bash
+pqai config show
+```
+
+그 외에 토큰을 설정하는 방법(일회성 오버라이드나 CI 환경에 유용):
+
+- 셸에서 `PQAI_API_KEY` 환경변수를 export
+- 현재 프로젝트 폴더에 `.env` 파일을 두기 — 이 방법은 해당 폴더에서 `pqai`를 실행할 때만 적용됩니다.
 
 ```
 PQAI_API_KEY=your_token_here
 # PQAI_ENDPOINT=https://api.projectpq.ai   # 선택, API 주소 재정의
 ```
+
+여러 방법이 동시에 설정되어 있다면 다음 순서로 우선 적용됩니다 (위가 우선):
+
+1. 셸에서 export한 `PQAI_API_KEY`
+2. 현재 폴더의 `.env` 파일
+3. `pqai config set-api-key`로 저장한 전역 설정 파일
 
 **주의**: PQAI+ 요금제는 월 $20에 약 20회 호출 한도입니다. 호출은 아껴서 테스트하세요.
 
