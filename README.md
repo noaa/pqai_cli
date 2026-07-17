@@ -8,9 +8,45 @@ Want to see how each feature actually behaves, with real API responses? Check ou
 
 ## Install
 
-There are two ways to get `pqai`: download a ready-made binary (no Go required), or build it yourself from source.
+There are three ways to get `pqai`: a one-line installer script (easiest, no Go required), a manual binary download, or building it yourself from source.
 
-### Option A: Download a prebuilt binary (easiest, no Go required)
+### Option A: One-line installer (easiest, no Go required)
+
+**macOS / Linux** — open a terminal and run:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/noaa/pqai_cli/main/install.sh | sh
+```
+
+This detects your OS/architecture, downloads the matching binary from the [Releases page](../../releases), and installs it to `~/.local/bin/pqai`. Open a **new terminal window** afterward so your shell picks up the updated `PATH`.
+
+**macOS note**: since these binaries aren't notarized by an Apple Developer account, Gatekeeper may block the first run with "cannot be opened because the developer cannot be verified." If that happens, remove the quarantine flag once:
+
+```bash
+xattr -d com.apple.quarantine ~/.local/bin/pqai
+```
+
+**Windows** — open PowerShell (Start menu → search "PowerShell") and run:
+
+```powershell
+irm https://raw.githubusercontent.com/noaa/pqai_cli/main/install.ps1 | iex
+```
+
+Or, from Command Prompt (Start menu → search "cmd"):
+
+```cmd
+curl -fsSL https://raw.githubusercontent.com/noaa/pqai_cli/main/install.bat -o "%TEMP%\pqai-install.bat" && "%TEMP%\pqai-install.bat"
+```
+
+(Requires Windows 10 build 1803 or later — `curl` and `tar` are built in.) Open a **new terminal window** afterward to use the `pqai` command.
+
+If you'd rather install from source instead of a prebuilt binary, add `--source` (requires Go 1.21+ already installed):
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/noaa/pqai_cli/main/install.sh | sh -s -- --source
+```
+
+### Option B: Manual binary download
 
 Go to the [Releases page](../../releases) of this repository and download the archive for your OS/architecture, e.g.:
 
@@ -27,15 +63,9 @@ tar -xzf pqai-darwin-arm64.tar.gz     # or unzip on Windows
 ./pqai help
 ```
 
-**macOS note**: since these binaries aren't notarized by an Apple Developer account, Gatekeeper may block the first run with "cannot be opened because the developer cannot be verified." If that happens, remove the quarantine flag once:
+The same macOS Gatekeeper note from Option A applies here too.
 
-```bash
-xattr -d com.apple.quarantine ./pqai
-```
-
-If you'd rather build it yourself instead (or want the latest unreleased code), use Option B below.
-
-### Option B: Build from source
+### Option C: Build from source
 
 This is a command-line tool written in the [Go](https://go.dev) programming language. If you've never used Go before, don't worry — you don't need to know how to write Go code, you just need the Go compiler installed once to build the program.
 

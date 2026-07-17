@@ -1,3 +1,3 @@
-module github.com/area99/pqai-cli
+module github.com/noaa/pqai_cli
 
 go 1.26.3
